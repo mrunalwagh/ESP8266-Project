@@ -1,0 +1,82 @@
+#include <LiquidCrystal_I2C.h>
+
+#include <SPI.h>
+#include <ESP8266WiFi.h>
+#include <BlynkSimpleEsp8266.h>
+#include <DHT.h>
+
+
+char auth[] = "QSCHWaxIUMI3rAvMAXXvbOuddfWhEydm"; //Enter the Auth code which was send by Blink
+
+char ssid[] = "hack";  //Enter your WIFI Name
+char pass[] = "Easy@2021";  //Enter your WIFI Password
+LiquidCrystal_I2C lcd(0x27,20,4);
+#define DHTPIN D4         
+
+
+#define DHTTYPE DHT11     
+ 
+
+DHT dht(DHTPIN, DHTTYPE);
+BlynkTimer timer;
+int gasSensor;
+void sendSensor()
+{
+  float h = dht.readHumidity();
+  float t = dht.readTemperature(); 
+ 
+  lcd.setCursor(0,0);
+  lcd.print("Temp: ");
+  lcd.print(t);
+  lcd.print("℃");
+  Serial.println(t);
+  
+  lcd.setCursor(0,1);
+  lcd.print("Humid: ");
+  lcd.print(h);
+  lcd.print("%");
+  Serial.println(gasSensor);
+
+  gasSensor=analogRead(A0);
+  Serial.println(h);
+  
+  if(gasSensor>830)
+  {
+    
+    digitalWrite(D0,HIGH); 
+    
+  }
+  
+ else
+  {
+      digitalWrite(D0,LOW);
+  }
+
+  Blynk.virtualWrite(V1, gasSensor);
+  Blynk.virtualWrite(V5, h);  //V5 is for Humidity
+  Blynk.virtualWrite(V6, t);  //V6 is for Temperature
+  
+}
+
+void setup()
+{
+  Serial.begin(115200); // See the connection status in Serial Monitor
+  Blynk.begin(auth, ssid, pass);
+
+  dht.begin();
+  pinMode(D0,OUTPUT);
+ 
+
+  
+  timer.setInterval(1000L, sendSensor);
+  
+}
+
+void loop()
+{
+  Blynk.run(); // Initiates Blynk
+  timer.run(); // Initiates SimpleTimer
+
+ 
+  
+}
