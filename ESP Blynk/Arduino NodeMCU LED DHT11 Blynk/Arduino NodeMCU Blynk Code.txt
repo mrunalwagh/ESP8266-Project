@@ -1,0 +1,310 @@
+//#########################################################################################Test LED and DHT11
+// see here: https://www.youtube.com/watch?v=8jMr94B8iN0 to add NodeMCU ESP8266 library and board
+
+//----------------------------------------Include the DHT Library
+#include "DHT.h"
+//----------------------------------------
+
+//----------------------------------------DHT11 Sensor Configuration
+#define DHTPIN D1 //--> DHT11 sensor output is connected to PIN D1 on NodeMCU   
+#define DHTTYPE DHT11 //--> DHT sensor type declaration     
+DHT dht(DHTPIN, DHTTYPE);  
+//----------------------------------------
+
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(115200);
+  dht.begin(); //--> Starting the DHT11 library
+  pinMode(D8, OUTPUT); //--> Led connected to PIN D8 on NodeMCU
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  //----------------------------------------Make the LED blink
+  digitalWrite(D8, HIGH);   
+  Serial.println("LED On");
+  delay(1000);                      
+  digitalWrite(D8, LOW);    
+  Serial.println("LED Off");
+  delay(1000); 
+  //----------------------------------------                      
+
+  //----------------------------------------Get data from sensor and display on serial monitor
+  // Reading temperature or humidity takes about 250 milliseconds!
+  // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
+  int h = dht.readHumidity();
+  // Read temperature as Celsius (the default)
+  float t = dht.readTemperature();
+  
+  // Check if any reads failed and exit early (to try again).
+  if (isnan(h) || isnan(t)) {
+    Serial.println("Failed to read data from DHT sensor!");
+    delay(500);
+    return;
+  }
+
+  Serial.print(F("Humidity: "));
+  Serial.print(h);
+  Serial.print(F("% | Temperature: "));
+  Serial.print(t);
+  Serial.println(F("°C"));
+  delay(1000);
+  //----------------------------------------
+}
+//#########################################################################################
+
+
+
+
+
+
+//#########################################################################################Arduino NodeMCU ESP8266 Blynk LED
+/*************************************************************
+  Download latest Blynk library here:
+    https://github.com/blynkkk/blynk-library/releases/latest
+
+  Blynk is a platform with iOS and Android apps to control
+  Arduino, Raspberry Pi and the likes over the Internet.
+  You can easily build graphic interfaces for all your
+  projects by simply dragging and dropping widgets.
+
+    Downloads, docs, tutorials: http://www.blynk.cc
+    Sketch generator:           http://examples.blynk.cc
+    Blynk community:            http://community.blynk.cc
+    Follow us:                  http://www.fb.com/blynkapp
+                                http://twitter.com/blynk_app
+
+  Blynk library is licensed under MIT license
+  This example code is in public domain.
+
+ *************************************************************
+  This example runs directly on NodeMCU.
+
+  Note: This requires ESP8266 support package:
+    https://github.com/esp8266/Arduino
+
+  Please be sure to select the right NodeMCU module
+  in the Tools -> Board menu!
+
+  For advanced settings please follow ESP examples :
+   - ESP8266_Standalone_Manual_IP.ino
+   - ESP8266_Standalone_SmartConfig.ino
+   - ESP8266_Standalone_SSL.ino
+
+  Change WiFi ssid, pass, and Blynk auth token to run :)
+  Feel free to apply it to any other example. It's simple!
+ *************************************************************/
+
+/* Comment this out to disable prints and save space */
+#define BLYNK_PRINT Serial
+
+// see here: https://www.youtube.com/watch?v=8jMr94B8iN0 to add NodeMCU ESP8266 library and board
+//----------------------------------------Include Library
+#include <ESP8266WiFi.h>
+#include <BlynkSimpleEsp8266.h>
+//----------------------------------------
+
+//----------------------------------------Auth Token
+// You should get Auth Token in the Blynk App.
+// Go to the Project Settings (nut icon).
+char auth[] = "";
+//----------------------------------------
+
+//----------------------------------------Your WiFi credentials
+// Set password to "" for open networks.
+char ssid[] = "your_ssid/wifi_name";
+char pass[] = "your_wifi_password";
+//----------------------------------------
+
+#define LEDPin D8
+int trg;
+int LEDState;
+
+//===================================================================================
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(115200);
+
+  Blynk.begin(auth, ssid, pass); //--> Start the Blynk library by entering your Blynk token, SSID and password on Wifi.
+  // You can also specify server:
+  //Blynk.begin(auth, ssid, pass, "blynk-cloud.com", 80);
+  //Blynk.begin(auth, ssid, pass, IPAddress(192,168,1,100), 8080);
+
+  trg = digitalRead(LEDPin);
+}
+//===================================================================================
+
+//===================================================================================
+void loop() {
+  Blynk.run();
+
+  //----------------------------------------Check the status of the LED
+  LEDState = digitalRead(LEDPin);
+  if (LEDState == 1 && trg == 1) {
+    Serial.println("LED State : ON");
+    trg = 0;
+  }
+  if (LEDState == 0 && trg == 0) {
+    Serial.println("LED State : OFF");
+    trg = 1;
+  }
+  //----------------------------------------
+}
+//===================================================================================
+//#########################################################################################
+
+
+
+
+
+
+//#########################################################################################Arduino NodeMCU Blynk LED and DHT11
+/*************************************************************
+  Download latest Blynk library here:
+    https://github.com/blynkkk/blynk-library/releases/latest
+
+  Blynk is a platform with iOS and Android apps to control
+  Arduino, Raspberry Pi and the likes over the Internet.
+  You can easily build graphic interfaces for all your
+  projects by simply dragging and dropping widgets.
+
+    Downloads, docs, tutorials: http://www.blynk.cc
+    Sketch generator:           http://examples.blynk.cc
+    Blynk community:            http://community.blynk.cc
+    Follow us:                  http://www.fb.com/blynkapp
+                                http://twitter.com/blynk_app
+
+  Blynk library is licensed under MIT license
+  This example code is in public domain.
+
+ *************************************************************
+  This example runs directly on NodeMCU.
+
+  Note: This requires ESP8266 support package:
+    https://github.com/esp8266/Arduino
+
+  Please be sure to select the right NodeMCU module
+  in the Tools -> Board menu!
+
+  For advanced settings please follow ESP examples :
+   - ESP8266_Standalone_Manual_IP.ino
+   - ESP8266_Standalone_SmartConfig.ino
+   - ESP8266_Standalone_SSL.ino
+
+  Change WiFi ssid, pass, and Blynk auth token to run :)
+  Feel free to apply it to any other example. It's simple!
+ *************************************************************/
+
+/* Comment this out to disable prints and save space */
+#define BLYNK_PRINT Serial
+
+// see here: https://www.youtube.com/watch?v=8jMr94B8iN0 to add NodeMCU ESP8266 library and board
+//----------------------------------------Include Library
+#include <ESP8266WiFi.h>
+#include <BlynkSimpleEsp8266.h>
+
+#include "DHT.h"
+//----------------------------------------
+
+//----------------------------------------Auth Token
+// You should get Auth Token in the Blynk App.
+// Go to the Project Settings (nut icon).
+char auth[] = "";
+//----------------------------------------
+
+//----------------------------------------Your WiFi credentials
+// Set password to "" for open networks.
+char ssid[] = "your_ssid/wifi_name";
+char pass[] = "your_wifi_password";
+//----------------------------------------
+
+//----------------------------------------DHT11 Sensor Configuration
+#define DHTPIN D1 //--> DHT11 sensor output is connected to PIN D1 on NodeMCU   
+#define DHTTYPE DHT11 //--> DHT sensor type declaration     
+DHT dht(DHTPIN, DHTTYPE);  
+//----------------------------------------
+
+#define LEDPin D8
+int trg;
+int LEDState;
+
+BlynkTimer timer; //--> Initialize the BlynkTimer. The timer is used for the interval of sending data to the Blynk Server.
+
+//===================================================================================Subroutine for sending data from DHT11 sensors to Blynk Server
+void sendDHT11SensorVal() {
+  //----------------------------------------Get data from sensor and display on serial monitor
+  // Reading temperature or humidity takes about 250 milliseconds!
+  // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
+  int h = dht.readHumidity();
+  // Read temperature as Celsius (the default)
+  float t = dht.readTemperature();
+  
+  // Check if any reads failed and exit early (to try again).
+  if (isnan(h) || isnan(t)) {
+    Serial.println("Failed to read data from DHT sensor!");
+    delay(500);
+    return;
+  }
+
+  Serial.print(F("Humidity: "));
+  Serial.print(h);
+  Serial.print(F("% | Temperature: "));
+  Serial.print(t);
+  Serial.println(F("°C"));
+  //----------------------------------------
+
+  //----------------------------------------Sending data from DHT11 sensors to Blynk Server
+  // You can send any value at any time.
+  // Please don't send more that 10 values per second.
+  String Hum = String(h);
+  String Tem = String(t);
+  Blynk.virtualWrite(V0, Hum);
+  Blynk.virtualWrite(V1, Tem);
+  //----------------------------------------
+
+  //----------------------------------------Check the status of the LED
+  if (LEDState == 1) {
+    Serial.println("LED State : ON");
+  } else {
+    Serial.println("LED State : OFF");
+  }
+  //----------------------------------------
+}
+//===================================================================================
+
+//===================================================================================
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(115200);
+
+  Blynk.begin(auth, ssid, pass); //--> Start the Blynk library by entering your Blynk token, SSID and password on Wifi.
+  // You can also specify server:
+  //Blynk.begin(auth, ssid, pass, "blynk-cloud.com", 80);
+  //Blynk.begin(auth, ssid, pass, IPAddress(192,168,1,100), 8080);
+  
+  dht.begin(); //--> Starting the DHT11 library
+  timer.setInterval(5000L, sendDHT11SensorVal); //--> Configure a timer to transmit sensor data. 5000L = approximately 5 seconds interval
+
+  trg = digitalRead(LEDPin);
+}
+//===================================================================================
+
+//===================================================================================
+void loop() {
+  Blynk.run();
+  timer.run();
+
+  //----------------------------------------Check the status of the LED
+  LEDState = digitalRead(LEDPin);
+  if (LEDState == 1 && trg == 1) {
+    Serial.println("LED State : ON");
+    trg = 0;
+  }
+  if (LEDState == 0 && trg == 0) {
+    Serial.println("LED State : OFF");
+    trg = 1;
+  }
+  //----------------------------------------
+}
+//===================================================================================
+//#########################################################################################
